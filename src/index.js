@@ -1,11 +1,14 @@
 // write your code here
+const imageContainer = document.querySelector(".image-container")
+
+
 function createImage (image) {
     
     // top level article
     let imageCard = document.createElement("article")
     imageCard.setAttribute("class", "image-card")
     
-    document.body.append(imageCard)
+    imageContainer.append(imageCard)
     
     // children of the article
     let imageTitle = document.createElement("h2")
@@ -19,13 +22,13 @@ function createImage (image) {
     let likesSection = document.createElement("div")
     likesSection.setAttribute("class", "likes-section")
     
-    let comments = document.createElement("ul")
-    comments.setAttribute("class", "comments")
+    let commentsEl = document.createElement("ul")
+    commentsEl.setAttribute("class", "comments")
     
     let commentsForm = document.createElement("form")
     commentsForm.setAttribute("class", "comment-form")
     
-    imageCard.append(imageTitle, screenImage, likesSection, comments, commentsForm)
+    imageCard.append(imageTitle, screenImage, likesSection, commentsEl, commentsForm)
     
     // children of likes section
     let likes = document.createElement("span")
@@ -39,11 +42,19 @@ function createImage (image) {
     likesSection.append(likes, likeButton)
     
     // children of the comments
-    for (let comment of image.comments) {
-        comment = document.createElement("li")
-        comment.innerText = comment["content"]
-        comments.append(comment)
-    }
+    fetch("http://127.0.0.1:3000/comments")
+        .then(function (response) {
+            return response.json()
+        })
+        .then(function (comments) {
+            for (const comment of comments) {
+                if (comment.imageId===image.id) {
+                    const commentEl = document.createElement("li")
+                    commentEl.innerText = comment["content"]
+                    commentsEl.append(commentEl)
+                }
+            }
+        })
     
     // children of the form
     let commentInput = document.createElement("input")
@@ -59,7 +70,6 @@ function createImage (image) {
     
     commentsForm.append(commentInput, commentButton)
 }
-// top level article
 
 // run fetch
 fetch("http://127.0.0.1:3000/images")
@@ -72,10 +82,3 @@ fetch("http://127.0.0.1:3000/images")
         }
     })
     
-fetch("http://127.0.0.1:3000/comments")
-    .then(function (response) {
-        return response.json()
-    })
-    .then(function (comments) {
-        console.log(comments)
-    })
